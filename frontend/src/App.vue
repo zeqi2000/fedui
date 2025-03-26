@@ -1,0 +1,28 @@
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useUserStore } from './stores/user'
+
+const userStore = useUserStore()
+
+onMounted(() => {
+  // 在组件挂载时尝试自动登录（从localStorage读取token）
+  userStore.checkAuth()
+})
+</script>
+
+<template>
+  <router-view />
+</template>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+#app {
+  height: 100%;
+}
+</style>

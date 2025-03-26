@@ -1,0 +1,72 @@
+# 前端相关
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.vscode/*
+!frontend/.vscode/extensions.json
+
+# 后端相关
+backend/__pycache__/
+backend/**/__pycache__/
+backend/core/__pycache__/
+backend/routes/__pycache__/
+backend/schemas/__pycache__/
+backend/services/__pycache__/
+backend/.env
+backend/venv/
+backend/.venv/
+backend/env/
+
+# Python相关
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 日志文件
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 数据文件
+backend/data/*.db
+backend/data/*.sqlite
+backend/data/*.json
+!backend/data/sample_data.json
+
+# 编辑器和IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
