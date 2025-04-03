@@ -126,6 +126,7 @@ def connect_to_db(connection_id: str) -> DatabaseStatus:
     if not connection:
         raise ValueError("数据库连接不存在")
     
+    print(connection)
     # 尝试连接到Milvus
     try:
         alias = f"conn_{connection_id}"
@@ -139,17 +140,19 @@ def connect_to_db(connection_id: str) -> DatabaseStatus:
         )
         
         # 检查连接是否成功
-        if utility.has_connection(alias):
+        if connections.has_connection(alias):
+        # if utility.list_collections():
             # 更新连接状态
             connection["status"] = "已连接"
             update_connection_status(connection_id, "已连接")
-            
+            print("连接成功")
             return DatabaseStatus(
                 id=connection_id,
                 status="已连接",
                 details={"message": "连接成功"}
             )
         else:
+            print("无法建立连接")
             update_connection_status(connection_id, "连接失败")
             return DatabaseStatus(
                 id=connection_id,
@@ -157,6 +160,7 @@ def connect_to_db(connection_id: str) -> DatabaseStatus:
                 details={"message": "无法建立连接"}
             )
     except Exception as e:
+        print(f"连接数据库时出错: {e}")
         update_connection_status(connection_id, "连接失败")
         return DatabaseStatus(
             id=connection_id,

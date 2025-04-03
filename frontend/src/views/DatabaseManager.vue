@@ -191,8 +191,8 @@ import {
   createDatabaseConnection,
   updateDatabaseConnection,
   deleteDatabaseConnection,
-  connectToDatabase,
-  disconnectFromDatabase,
+  apiConnectToDatabase,
+  apiDisconnectFromDatabase,
   getDatabaseStatistics
 } from '@/api/database'
 
@@ -358,8 +358,10 @@ const connectToDatabase = async (row: any) => {
   
   databaseList.value[index].connecting = true
   try {
-    const result = await connectToDatabase(row.id)
+    const result = await apiConnectToDatabase(row.id)
     databaseList.value[index].status = result.status
+    // consolo.log("连接结果")
+    console.log(result)
     ElMessage.success(`连接到数据库 ${row.name} 成功`)
     fetchDatabases() // 刷新列表以更新状态
   } catch (error) {
@@ -377,7 +379,7 @@ const disconnectFromDatabase = async (row: any) => {
   
   databaseList.value[index].disconnecting = true
   try {
-    const result = await disconnectFromDatabase(row.id)
+    const result = await apiDisconnectFromDatabase(row.id)
     databaseList.value[index].status = result.status
     ElMessage.success(`已断开与数据库 ${row.name} 的连接`)
     fetchDatabases() // 刷新列表以更新状态

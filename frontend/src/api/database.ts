@@ -39,13 +39,13 @@ export async function deleteDatabaseConnection(id: string) {
 }
 
 // 连接到数据库
-export async function connectToDatabase(id: string) {
+export async function apiConnectToDatabase(id: string) {
   const response = await apiClient.post(`/api/database/connections/${id}/connect`)
   return response.data
 }
 
 // 断开与数据库的连接
-export async function disconnectFromDatabase(id: string) {
+export async function apiDisconnectFromDatabase(id: string) {
   const response = await apiClient.post(`/api/database/connections/${id}/disconnect`)
   return response.data
 }
