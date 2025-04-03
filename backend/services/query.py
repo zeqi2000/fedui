@@ -20,7 +20,7 @@ def execute_vector_query(
     
     alias = f"conn_{database_id}"
     # 确保连接
-    if not utility.has_connection(alias):
+    if not connections.has_connection(alias):
         connect_to_db(database_id)
         
     # 准备查询参数
@@ -35,13 +35,13 @@ def execute_vector_query(
         start_time = time.time()
         
         # 获取集合
-        collection = Collection(collection_name, alias)
+        collection = Collection(collection_name, using=alias)
         collection.load()
         
         # 执行查询
         search_result = collection.search(
             data=vector_data,
-            anns_field="vector",  # 假设向量字段名为"vector"
+            anns_field="emb",  # 假设向量字段名为"vector"
             param=search_params,
             limit=top_k,
             output_fields=output_fields

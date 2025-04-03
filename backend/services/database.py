@@ -173,10 +173,12 @@ def disconnect_from_db(connection_id: str) -> DatabaseStatus:
     connection = get_connection_by_id(connection_id)
     if not connection:
         raise ValueError("数据库连接不存在")
-    
+    print(connection)
     alias = f"conn_{connection_id}"
+    print(alias)
     try:
-        if utility.has_connection(alias):
+        if connections.has_connection(alias):
+            print("断开连接")
             connections.disconnect(alias)
             
         update_connection_status(connection_id, "未连接")
@@ -186,6 +188,7 @@ def disconnect_from_db(connection_id: str) -> DatabaseStatus:
             details={"message": "已断开连接"}
         )
     except Exception as e:
+        print(f"断开连接时出错: {e}")
         return DatabaseStatus(
             id=connection_id,
             status=connection["status"],
@@ -209,28 +212,51 @@ def get_db_statistics(connection_id: str) -> DatabaseStatistics:
     connection = get_connection_by_id(connection_id)
     if not connection:
         raise ValueError("数据库连接不存在")
-    
+    # print(connection)
     alias = f"conn_{connection_id}"
+    print(alias)
     try:
-        if not utility.has_connection(alias):
+        print(1)
+        print(connections.has_connection(alias))
+        # if connections.has_connection(alias):
+        #     print("已连接")
+        # else:
+        #     print("未连接")
+        #     connections.connect(
+        #         alias=alias,
+        #         host=connection["host"],
+        #         port=connection["port"],
+        #         user=connection.get("username"),
+        #         password=connection.get("password"),
+        #         secure=True if connection.get("username") else False
+        #     )
+        if not connections.has_connection(alias):
             # 尝试连接
+            print("try connect")
             connect_to_db(connection_id)
-            
+        print(connections.has_connection(alias))
         # 获取所有集合
-        collection_names = utility.list_collections(alias)
+        collection_names = utility.list_collections(using=alias)
+        # collection_names = connections.list_collections(alias)
+        print(collection_names)
         collections = []
         total_entities = 0
         
         for name in collection_names:
             try:
-                col = Collection(name, alias)
+                col = Collection(name,using= alias)
                 entity_count = col.num_entities
                 total_entities += entity_count
-                
+                if col.has_index():
+                    index_info = col.index()
+                    print(index_info._index_params["index_type"])
+                print(col.indexes)
+
+
                 collections.append({
                     "name": name,
                     "entity_count": entity_count,
-                    "index_status": "已创建" if col.has_index() else "未创建",
+                    "index_status": str(col.index()._index_params["index_type"]) if col.has_index() else "未创建",
                     "description": ""
                 })
             except Exception as e:
@@ -248,4 +274,5 @@ def get_db_statistics(connection_id: str) -> DatabaseStatistics:
             collections=collections
         )
     except Exception as e:
+        print(f"获取数据库统计信息时出错: {e}")
         raise ValueError(f"获取数据库统计信息时出错: {str(e)}")

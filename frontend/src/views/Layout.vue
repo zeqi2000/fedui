@@ -27,12 +27,12 @@
         
         <el-menu-item index="/query">
           <el-icon><Search /></el-icon>
-          <span>向量查询</span>
+          <span>横向联邦查询</span>
         </el-menu-item>
         
         <el-menu-item index="/multi-query">
           <el-icon><Connection /></el-icon>
-          <span>跨库查询</span>
+          <span>纵向联邦查询</span>
         </el-menu-item>
         
         <el-menu-item index="/profile">

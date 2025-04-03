@@ -53,5 +53,6 @@ export async function apiDisconnectFromDatabase(id: string) {
 // 获取数据库统计信息
 export async function getDatabaseStatistics(id: string) {
   const response = await apiClient.get(`/api/database/connections/${id}/statistics`)
+  console.log(response.data)
   return response.data
 } 
