@@ -23,7 +23,7 @@ export async function executeMultiDatabaseQuery(data: {
   search_params?: any
   output_fields?: string[]
 }) {
-  const response = await apiClient.post('/api/query/multi-database', data)
+  const response = await apiClient.post('/api/query/multi', data)
   return response.data
 }
 

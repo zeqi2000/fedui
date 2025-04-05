@@ -52,6 +52,8 @@ async def query_multiple_databases(
             search_params=query.search_params,
             output_fields=query.output_fields
         )
+        print("route:query_multiple_databases")
+        print(result)
         return result
     except ValueError as e:
         raise HTTPException(

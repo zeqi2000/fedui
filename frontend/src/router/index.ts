@@ -33,6 +33,12 @@ const router = createRouter({
           meta: { requiresAuth: true, title: '跨库查询' }
         },
         {
+          path: 'multi-query-v',
+          name: 'multi-query-v',
+          component: () => import('@/views/MultiDatabaseQuery_V.vue'),
+          meta: { requiresAuth: true, title: '跨库查询' }
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('@/views/UserProfile.vue'),

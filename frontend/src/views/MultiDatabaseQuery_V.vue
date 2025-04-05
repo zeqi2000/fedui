@@ -138,7 +138,7 @@
         <el-card shadow="never" class="results-panel">
           <template #header>
             <div class="card-header">
-              <h3>横向联邦KNN查询结果</h3>
+              <h3>纵向联邦KNN查询结果</h3>
               <div v-if="queryResults.length > 0">
                 <el-button size="small" @click="clearResults">清除结果</el-button>
               </div>

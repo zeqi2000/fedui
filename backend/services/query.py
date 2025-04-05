@@ -13,31 +13,33 @@ def execute_vector_query(
     output_fields: Optional[List[str]] = None
 ) -> QueryResult:
     """在指定数据库和集合上执行向量查询"""
-    # 检查连接是否存在
-    connection = get_connection_by_id(database_id)
-    if not connection:
-        raise ValueError("数据库连接不存在")
-    
-    alias = f"conn_{database_id}"
-    # 确保连接
-    if not connections.has_connection(alias):
-        connect_to_db(database_id)
-        
-    # 准备查询参数
-    if search_params is None:
-        search_params = {"metric_type": "L2"}
-        
-    if not isinstance(vector_data[0], list):
-        # 单个向量，转为列表
-        vector_data = [vector_data]
-        
     try:
+        # 检查连接是否存在
+        connection = get_connection_by_id(database_id)
+        if not connection:
+            raise ValueError("数据库连接不存在")
+        
+        alias = f"conn_{database_id}"
+        # 确保连接
+        if not connections.has_connection(alias):
+            connect_to_db(database_id)
+            
+        # 准备查询参数
+        if search_params is None:
+            search_params = {"metric_type": "L2"}
+        print(11)
+        print(vector_data)
+        if not isinstance(vector_data[0], list):
+            # 单个向量，转为列表
+            vector_data = [vector_data]
+        
+    # try:
         start_time = time.time()
         
         # 获取集合
         collection = Collection(collection_name, using=alias)
         collection.load()
-        
+        print(1)
         # 执行查询
         search_result = collection.search(
             data=vector_data,
@@ -60,7 +62,7 @@ def execute_vector_query(
         
         end_time = time.time()
         execution_time = end_time - start_time
-        
+        print("result:",results)
         # 返回结果
         return QueryResult(
             database_id=database_id,
@@ -72,6 +74,7 @@ def execute_vector_query(
             }
         )
     except Exception as e:
+        print(e)
         raise ValueError(f"查询执行失败: {str(e)}")
 
 def execute_multi_db_query(
@@ -83,6 +86,9 @@ def execute_multi_db_query(
     output_fields: Optional[List[str]] = None
 ) -> MultiDatabaseQueryResult:
     """在多个数据库上执行查询并合并结果"""
+    print("service")
+    print("multi:",database_ids,collection_names,vector_data)
+
     start_time = time.time()
     results = {}
     errors = []
@@ -90,11 +96,13 @@ def execute_multi_db_query(
     # 对每个数据库执行查询
     for db_id in database_ids:
         try:
+            print("for start")
             collection_name = collection_names.get(db_id)
+            print(collection_name)
             if not collection_name:
                 errors.append(f"数据库ID {db_id} 未提供集合名称")
                 continue
-                
+            print(1)
             query_result = execute_vector_query(
                 database_id=db_id,
                 collection_name=collection_name,
@@ -103,8 +111,10 @@ def execute_multi_db_query(
                 search_params=search_params,
                 output_fields=output_fields
             )
-            
+            print(2)
+            # print("multi:",db_id,query_result)
             results[db_id] = query_result
+            print(3)
         except Exception as e:
             errors.append(f"数据库 {db_id} 查询失败: {str(e)}")
     
