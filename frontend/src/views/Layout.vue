@@ -4,7 +4,7 @@
     <el-aside width="250px" class="aside">
       <div class="logo">
         <img src="@/assets/logo.svg" alt="Logo" />
-        <h1>向量数据库系统</h1>
+        <h1>联邦向量KNN</h1>
       </div>
       
       <el-menu
@@ -88,7 +88,7 @@
       
       <!-- 页脚 -->
       <el-footer height="50px" class="footer">
-        <p>© 2023 向量数据库管理系统 - 版权所有</p>
+        <p>© 2025 向量数据库管理系统 - 版权所有</p>
       </el-footer>
     </el-container>
   </el-container>

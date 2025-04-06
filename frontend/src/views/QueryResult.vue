@@ -119,14 +119,14 @@
             {{ selectedResult.distance.toFixed(6) }}
           </el-descriptions-item>
           
-          <el-descriptions-item
-            v-for="(value, key) in selectedResult"
-            :key="key"
-            :label="key"
-            v-if="!['database_id', 'collection_name', 'id', 'distance'].includes(key)"
-          >
-            {{ typeof value === 'object' ? JSON.stringify(value) : value }}
-          </el-descriptions-item>
+          <template v-for="(value, fieldName) in selectedResult" :key="fieldName">
+            <el-descriptions-item
+              v-if="!['database_id', 'collection_name', 'id', 'distance'].includes(fieldName)"
+              :label="fieldName"
+            >
+              {{ typeof value === 'object' ? JSON.stringify(value) : value }}
+            </el-descriptions-item>
+          </template>
         </el-descriptions>
       </div>
     </el-dialog>
@@ -236,6 +236,11 @@ const getVectorData = (row: any) => {
     if (resultVectorFields.length > 0) {
       return firstResult[resultVectorFields[0]]
     }
+  }
+  
+  // 如果还是没有找到，尝试从查询参数中获取原始向量
+  if (queryResult.value?.query_params?.vector_data) {
+    return queryResult.value.query_params.vector_data
   }
   
   return []

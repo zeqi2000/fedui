@@ -97,10 +97,10 @@
             </el-statistic>
             <div class="stat-footer">
               <el-button type="success" @click="navigateTo('/query')">
-                单库查询
+                横向联邦向量KNN查询
               </el-button>
               <el-button type="warning" @click="navigateTo('/multi-query')">
-                跨库查询
+                纵向联邦向量KNN查询
               </el-button>
             </div>
           </div>
@@ -109,7 +109,7 @@
     </el-row>
     
     <el-row :gutter="20" class="mt-20" v-if="userStore.isAdmin">
-      <el-col :span="24">
+      <el-col :span="12">
         <el-card shadow="hover">
           <template #header>
             <div class="card-header">
@@ -117,6 +117,17 @@
             </div>
           </template>
           <div id="systemStatusChart" class="chart-container"></div>
+        </el-card>
+      </el-col>
+      
+      <el-col :span="12">
+        <el-card shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <h3>数据库拓扑结构</h3>
+            </div>
+          </template>
+          <div id="topologyChart" class="chart-container"></div>
         </el-card>
       </el-col>
     </el-row>
@@ -154,6 +165,7 @@ const fetchDatabaseConnections = async () => {
     
     if (userStore.isAdmin) {
       initSystemStatusChart(connections)
+      initTopologyChart(connections)
     }
   } catch (error) {
     console.error('获取数据库连接失败:', error)
@@ -171,8 +183,8 @@ const initSystemStatusChart = (connections: any[]) => {
     
     // 准备数据
     const statusData = [
-      { value: activeConnections.value, name: '活跃连接' },
-      { value: databaseCount.value - activeConnections.value, name: '未连接' }
+      { value: activeConnections.value, name: '活跃连接', itemStyle: { color: '#91CC75' } },
+      { value: databaseCount.value - activeConnections.value, name: '未连接', itemStyle: { color: '#FAC858' } }
     ]
     
     const option = {
@@ -210,6 +222,93 @@ const initSystemStatusChart = (connections: any[]) => {
             show: false
           },
           data: statusData
+        }
+      ]
+    }
+    
+    myChart.setOption(option)
+    
+    window.addEventListener('resize', () => {
+      myChart.resize()
+    })
+  }, 0)
+}
+
+// 初始化拓扑结构图表
+const initTopologyChart = (connections: any[]) => {
+  setTimeout(() => {
+    const chartDom = document.getElementById('topologyChart')
+    if (!chartDom) return
+    
+    const myChart = echarts.init(chartDom)
+    
+    // 准备节点数据
+    const nodes = [
+      { id: 'federation', name: '联邦协调方', value: '联邦', category: 0, symbolSize: 80, itemStyle: { color: '#5470C6' } }
+    ]
+    
+    // 添加数据库节点
+    connections.forEach((conn, index) => {
+      nodes.push({
+        id: conn.id,
+        name: conn.name,
+        value: conn.name,
+        category: conn.status === '已连接' ? 1 : 2,
+        symbolSize: 50,
+        itemStyle: { 
+          color: conn.status === '已连接' ? '#91CC75' : '#FAC858' 
+        }
+      })
+    })
+    
+    // 准备边数据
+    const edges = connections.map(conn => ({
+      source: 'federation',
+      target: conn.id,
+      value: conn.status === '已连接' ? '已连接' : '未连接',
+      lineStyle: {
+        color: '#5470C6', // 所有连接线使用蓝色
+        width: 2
+      }
+    }))
+    
+    const option = {
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}'
+      },
+      legend: {
+        data: ['联邦协调方', '活跃连接参与方', '未连接参与方']
+      },
+      animationDurationUpdate: 1500,
+      animationEasingUpdate: 'quinticInOut' as any,
+      series: [
+        {
+          type: 'graph',
+          layout: 'force',
+          data: nodes,
+          links: edges,
+          categories: [
+            { name: '联邦协调方' },
+            { name: '活跃连接参与方' },
+            { name: '未连接参与方' }
+          ],
+          roam: true,
+          label: {
+            show: true,
+            position: 'right',
+            formatter: '{b}'
+          },
+          force: {
+            repulsion: 100,
+            gravity: 0.1,
+            edgeLength: 100
+          },
+          lineStyle: {
+            opacity: 0.9,
+            width: 2,
+            curveness: 0
+          }
         }
       ]
     }

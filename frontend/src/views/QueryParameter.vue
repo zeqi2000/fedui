@@ -157,15 +157,15 @@
             stripe
             max-height="600"
           >
-            <el-table-column type="index" label="#" width="60" />
-            <el-table-column prop="timestamp" label="查询时间" width="180">
+            <el-table-column type="index" label="#" width="60" align="center"/>
+            <el-table-column prop="timestamp" label="查询时间" width="180" align="center">
               <template #default="{ row }">
                 {{ formatTimestamp(row.timestamp) }}
               </template>
             </el-table-column>
-            <el-table-column prop="database_count" label="数据库数量" width="100" />
-            <el-table-column prop="top_k" label="Top K" width="80" />
-            <el-table-column label="数据库" min-width="200">
+            <el-table-column prop="database_count" label="数据库数量" width="100" align="center"/>
+            <el-table-column prop="top_k" label="Top K" width="80" align="center" />
+            <el-table-column label="数据库" min-width="180" align="center">
               <template #default="{ row }">
                 <div class="database-list">
                   <el-tag
@@ -179,7 +179,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="120" fixed="right">
+            <el-table-column label="操作" width="120" fixed="right" align="center"  >
               <template #default="{ row }">
                 <el-button
                   link
@@ -187,7 +187,7 @@
                   size="small"
                   @click="viewQueryDetails(row)"
                 >
-                  详情
+                详情
                 </el-button>
                 <el-button
                   link
@@ -195,7 +195,7 @@
                   size="small"
                   @click="viewQueryResults(row)"
                 >
-                  查看结果
+                查看结果
                 </el-button>
               </template>
             </el-table-column>
@@ -221,7 +221,7 @@
           <el-descriptions-item label="Top K">
             {{ selectedQuery.top_k }}
           </el-descriptions-item>
-          <el-descriptions-item label="数据库列表">
+          <el-descriptions-item label="查询数据库">
             <div v-for="dbId in selectedQuery.database_ids" :key="dbId" class="database-info">
               <el-tag size="small">{{ getDatabaseName(dbId) }}</el-tag>
               <span class="collection-name">
@@ -229,7 +229,7 @@
               </span>
             </div>
           </el-descriptions-item>
-          <el-descriptions-item label="向量数据">
+          <el-descriptions-item label="查询向量">
             <pre>{{ JSON.stringify(selectedQuery.vector_data, null, 2) }}</pre>
           </el-descriptions-item>
         </el-descriptions>
