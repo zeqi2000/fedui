@@ -8,26 +8,32 @@
       </div>
       
       <el-menu
-        router
-        :default-active="activeRoute"
+        :default-active="activeMenu"
         class="el-menu-vertical"
+        :collapse="isCollapse"
+        router
         background-color="#001529"
         text-color="#fff"
         active-text-color="#409EFF"
       >
-        <el-menu-item index="/dashboard">
-          <el-icon><DataBoard /></el-icon>
-          <span>仪表盘</span>
+        <el-menu-item index="/">
+          <el-icon><HomeFilled /></el-icon>
+          <template #title>仪表盘</template>
         </el-menu-item>
         
         <el-menu-item index="/databases" v-if="userStore.isAdmin">
-          <el-icon><DataLine /></el-icon>
-          <span>数据库管理</span>
+          <el-icon><Connection /></el-icon>
+          <template #title>数据库管理</template>
         </el-menu-item>
         
         <el-menu-item index="/query">
           <el-icon><Search /></el-icon>
-          <span>向量查询</span>
+          <template #title>向量查询</template>
+        </el-menu-item>
+        
+        <el-menu-item index="/query-parameter">
+          <el-icon><Document /></el-icon>
+          <template #title>查询参数</template>
         </el-menu-item>
         
         <el-menu-item index="/multi-query">
@@ -42,7 +48,7 @@
         
         <el-menu-item index="/profile">
           <el-icon><User /></el-icon>
-          <span>个人信息</span>
+          <template #title>个人信息</template>
         </el-menu-item>
       </el-menu>
     </el-aside>
@@ -91,7 +97,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { DataBoard, DataLine, Search, Connection, User, ArrowDown } from '@element-plus/icons-vue'
+import { DataBoard, DataLine, Search, Connection, User, ArrowDown, HomeFilled, Document } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -102,10 +108,8 @@ const userStore = useUserStore()
 const isCollapse = ref(false)
 const activeMenuItem = ref('')
 
-// 获取当前激活的路由路径
-const activeRoute = computed(() => {
-  return route.path
-})
+// 计算当前激活的菜单项
+const activeMenu = computed(() => route.path)
 
 // 获取当前页面标题
 const currentPageTitle = computed(() => {

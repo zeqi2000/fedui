@@ -43,6 +43,24 @@ const router = createRouter({
           name: 'profile',
           component: () => import('@/views/UserProfile.vue'),
           meta: { requiresAuth: true, title: '个人信息' }
+        },
+        {
+          path: 'query-parameter',
+          name: 'QueryParameter',
+          component: () => import('@/views/QueryParameter.vue'),
+          meta: {
+            title: '查询参数设置',
+            requiresAuth: true
+          }
+        },
+        {
+          path: 'query-result/:queryId',
+          name: 'QueryResult',
+          component: () => import('@/views/QueryResult.vue'),
+          meta: {
+            title: '查询结果',
+            requiresAuth: true
+          }
         }
       ]
     },
