@@ -67,6 +67,14 @@
               </div>
             </el-form-item>
             
+            <!-- 查询类型选择 -->
+            <el-form-item label="查询类型" prop="query_type">
+              <el-radio-group v-model="queryForm.query_type">
+                <el-radio label="horizontal">横向查询</el-radio>
+                <el-radio label="vertical">纵向查询</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            
             <!-- 向量输入 -->
             <el-form-item label="向量输入方式" prop="input_type">
               <el-radio-group v-model="queryForm.input_type">
@@ -159,9 +167,16 @@
             <el-table-column prop="top_k" label="Top K" width="80" />
             <el-table-column label="数据库" min-width="200">
               <template #default="{ row }">
-                <el-tooltip :content="row.database_ids.join(', ')" placement="top" effect="light">
-                  <span>{{ row.database_ids.length }} 个数据库</span>
-                </el-tooltip>
+                <div class="database-list">
+                  <el-tag
+                    v-for="dbId in row.database_ids"
+                    :key="dbId"
+                    size="small"
+                    class="database-tag"
+                  >
+                    {{ getDatabaseName(dbId) }}
+                  </el-tag>
+                </div>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="120" fixed="right">
@@ -242,7 +257,8 @@ const queryForm = reactive({
   vector_data_text: '',
   vector_data: [] as number[],
   vector_file: null as File | null,
-  top_k: 10
+  top_k: 10,
+  query_type: 'horizontal'
 })
 
 const queryRules = {
@@ -440,7 +456,8 @@ const submitQuery = async () => {
           database_ids: queryForm.database_ids,
           collection_names: queryForm.collection_mapping,
           vector_data: queryForm.vector_data,
-          top_k: queryForm.top_k
+          top_k: queryForm.top_k,
+          query_type: queryForm.query_type
         }
         
         const result = await executeMultiDatabaseQuery(queryParams)
@@ -459,14 +476,18 @@ const submitQuery = async () => {
           // 保存到本地存储
           saveHistory()
           
-          // 保存查询结果
-          localStorage.setItem(`queryResult_${queryRecord.id}`, JSON.stringify(result))
+          // 保存查询结果，确保包含查询参数
+          const resultWithParams = {
+            ...result,
+            query_params: queryParams
+          }
+          localStorage.setItem(`queryResult_${queryRecord.id}`, JSON.stringify(resultWithParams))
           
           // 跳转到结果页面，并传递查询结果
           router.push({
             name: 'QueryResult',
             params: { queryId: queryRecord.id },
-            query: { result: JSON.stringify(result) }
+            query: { result: JSON.stringify(resultWithParams) }
           })
         }
       } catch (error) {
@@ -592,5 +613,16 @@ pre {
   border-radius: 4px;
   max-height: 200px;
   overflow-y: auto;
+}
+
+.database-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.database-tag {
+  margin-right: 5px;
+  margin-bottom: 5px;
 }
 </style> 

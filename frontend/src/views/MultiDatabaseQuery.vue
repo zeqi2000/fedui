@@ -274,6 +274,7 @@ import { ElMessage, FormInstance } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { getDatabaseConnections, getDatabaseStatistics } from '@/api/database'
 import { executeMultiDatabaseQuery } from '@/api/query'
+import { useRouter } from 'vue-router'
 
 // 表单相关
 const queryFormRef = ref<FormInstance>()
@@ -325,6 +326,9 @@ const additionalFields = ref<string[]>([])
 // 结果详情
 const detailsVisible = ref(false)
 const selectedResult = ref<any>(null)
+
+// 历史记录
+const queryHistory = ref<any[]>([])
 
 // 计算属性
 const canQuery = computed(() => {
@@ -432,29 +436,6 @@ const handleVectorDataInput = (value: string) => {
 }
 
 // 处理文件上传
-// const handleFileChange = (file: any) => {
-//   if (file && file.raw) {
-//     queryForm.vector_file = file.raw
-    
-//     // 预览文件内容
-//     const reader = new FileReader()
-//     reader.onload = (e) => {
-//       try {
-//         const content = e.target?.result as string
-//         const parsed = JSON.parse(content)
-//         if (Array.isArray(parsed) && parsed.every(v => typeof v === 'number')) {
-//           ElMessage.success('文件解析成功')
-//         } else {
-//           ElMessage.warning('文件格式不正确，应为数字数组')
-//         }
-//       } catch (error) {
-//         ElMessage.error('无法解析文件，请确保文件包含有效的JSON数组')
-//       }
-//     }
-//     reader.readAsText(file.raw)
-//   }
-// }
-// 处理文件上传
 const handleFileChange = (file: any) => {
   if (file && file.raw) {
     queryForm.vector_file = file.raw
@@ -477,6 +458,7 @@ const handleFileChange = (file: any) => {
     reader.readAsText(file.raw)
   }
 }
+
 // 处理全选数据库
 const handleSelectAllDatabases = (val: boolean) => {
   if (val) {
@@ -525,23 +507,44 @@ const executeQuery = async () => {
           database_ids: queryForm.database_ids,
           collection_names: queryForm.collection_mapping,
           vector_data: queryForm.vector_data,
-          top_k: queryForm.top_k
+          top_k: queryForm.top_k,
+          return_vectors: true,
+          include_metadata: true
         }
         
         // 执行跨库查询
         const result = await executeMultiDatabaseQuery(queryParams)
         
         if (result) {
-          queryResults.value = result.aggregated_results
-          queryMetrics.value = result.metrics
+          // 打印查询结果，用于调试
+          console.log('查询结果:', result)
           
-          // 提取额外字段
-          if (queryResults.value.length > 0) {
-            additionalFields.value = Object.keys(queryResults.value[0])
-              .filter(key => !['database_id', 'collection_name', 'id', 'distance'].includes(key))
+          // 保存查询记录
+          const queryRecord = {
+            id: Date.now().toString(),
+            timestamp: new Date().toISOString(),
+            database_count: queryForm.database_ids.length,
+            ...queryParams
           }
           
-          ElMessage.success('跨库查询成功')
+          // 添加到历史记录
+          queryHistory.value.unshift(queryRecord)
+          // 保存到本地存储
+          saveHistory()
+          
+          // 保存查询结果，确保包含查询参数
+          const resultWithParams = {
+            ...result,
+            query_params: queryParams
+          }
+          localStorage.setItem(`queryResult_${queryRecord.id}`, JSON.stringify(resultWithParams))
+          
+          // 跳转到结果页面，并传递查询结果
+          router.push({
+            name: 'QueryResult',
+            params: { queryId: queryRecord.id },
+            query: { result: JSON.stringify(resultWithParams) }
+          })
         }
       } catch (error) {
         console.error('执行跨库查询失败:', error)
@@ -576,6 +579,13 @@ const getDatabaseName = (id: string) => {
   const db = availableDatabases.value.find(db => db.id === id)
   return db ? db.name : id
 }
+
+// 保存历史记录
+const saveHistory = () => {
+  // 实现保存历史记录的逻辑
+}
+
+const router = useRouter()
 
 onMounted(() => {
   fetchDatabases()

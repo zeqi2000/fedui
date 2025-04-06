@@ -58,18 +58,19 @@
           max-height="500"
         >
           <el-table-column type="index" label="#" width="60" />
-          <el-table-column prop="database_id" label="数据库ID" width="100">
-            <template #default="{ row }">
-              <el-tooltip :content="getDatabaseName(row.database_id)" placement="top" effect="light">
-                <el-tag size="small">{{ formatDatabaseId(row.database_id) }}</el-tag>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column prop="collection_name" label="集合" width="120" />
-          <el-table-column prop="id" label="实体ID" min-width="120" />
           <el-table-column prop="distance" label="距离" width="120">
             <template #default="{ row }">
               {{ row.distance.toFixed(6) }}
+            </template>
+          </el-table-column>
+          
+          <el-table-column label="向量" min-width="300">
+            <template #default="{ row }">
+              <el-tooltip :content="JSON.stringify(getVectorData(row))" placement="top" effect="light">
+                <span class="vector-preview">
+                  {{ formatVector(getVectorData(row)) }}
+                </span>
+              </el-tooltip>
             </template>
           </el-table-column>
           
@@ -202,7 +203,62 @@ const exportResults = () => {
   }
 }
 
-// 加载查询结果
+// 获取向量数据的函数
+const getVectorData = (row: any) => {
+  // 首先检查是否有直接的向量字段
+  if (row.vector) return row.vector
+  if (row.embedding) return row.embedding
+  if (row.vec) return row.vec
+  
+  // 如果没有直接的向量字段，检查是否有其他包含向量的字段
+  const vectorFields = Object.keys(row).filter(key => {
+    const value = row[key]
+    return Array.isArray(value) && 
+           value.length > 0 && 
+           value.every((v: any) => typeof v === 'number')
+  })
+  
+  if (vectorFields.length > 0) {
+    // 返回第一个找到的向量字段
+    return row[vectorFields[0]]
+  }
+  
+  // 如果还是没有找到，尝试从查询结果中查找
+  if (queryResult.value?.aggregated_results?.length > 0) {
+    const firstResult = queryResult.value.aggregated_results[0]
+    const resultVectorFields = Object.keys(firstResult).filter(key => {
+      const value = firstResult[key]
+      return Array.isArray(value) && 
+             value.length > 0 && 
+             value.every((v: any) => typeof v === 'number')
+    })
+    
+    if (resultVectorFields.length > 0) {
+      return firstResult[resultVectorFields[0]]
+    }
+  }
+  
+  return []
+}
+
+// 修改格式化向量的函数
+const formatVector = (vector: number[]) => {
+  if (!vector || !Array.isArray(vector)) return '无向量数据'
+  if (vector.length === 0) return '空向量'
+  
+  // 格式化向量显示
+  const formatted = vector.map(v => {
+    // 如果数字太小，使用科学计数法
+    if (Math.abs(v) < 0.0001 && v !== 0) {
+      return v.toExponential(2)
+    }
+    return v.toFixed(4)
+  })
+  
+  return `[${formatted.slice(0, 3).join(', ')}${vector.length > 3 ? ', ...' : ''}]`
+}
+
+// 修改加载查询结果的函数
 const loadQueryResult = async () => {
   loading.value = true
   try {
@@ -215,11 +271,14 @@ const loadQueryResult = async () => {
         queryResults.value = result.aggregated_results || []
         queryMetrics.value = result.metrics || {}
         
-        // 提取额外字段
+        // 提取额外字段，排除向量相关字段
         if (queryResults.value.length > 0) {
           additionalFields.value = Object.keys(queryResults.value[0])
-            .filter(key => !['database_id', 'collection_name', 'id', 'distance'].includes(key))
+            .filter(key => !['database_id', 'collection_name', 'id', 'distance', 'vector', 'embedding', 'vec'].includes(key))
         }
+        
+        // 打印查询结果，用于调试
+        console.log('查询结果:', queryResults.value)
       } catch (error) {
         console.error('解析查询结果失败:', error)
         ElMessage.error('解析查询结果失败')
@@ -237,11 +296,14 @@ const loadQueryResult = async () => {
             queryResults.value = result.aggregated_results || []
             queryMetrics.value = result.metrics || {}
             
-            // 提取额外字段
+            // 提取额外字段，排除向量相关字段
             if (queryResults.value.length > 0) {
               additionalFields.value = Object.keys(queryResults.value[0])
-                .filter(key => !['database_id', 'collection_name', 'id', 'distance'].includes(key))
+                .filter(key => !['database_id', 'collection_name', 'id', 'distance', 'vector', 'embedding', 'vec'].includes(key))
             }
+            
+            // 打印查询结果，用于调试
+            console.log('查询结果:', queryResults.value)
           } catch (error) {
             console.error('解析存储的查询结果失败:', error)
             ElMessage.error('无法加载查询结果')
@@ -322,5 +384,11 @@ onMounted(async () => {
 
 .results-content {
   padding: 10px 0;
+}
+
+.vector-preview {
+  font-family: monospace;
+  color: #666;
+  cursor: pointer;
 }
 </style> 
