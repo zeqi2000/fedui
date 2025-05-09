@@ -21,7 +21,7 @@
         <el-card shadow="hover" class="stat-card">
           <template #header>
             <div class="card-header">
-              <h3>数据库连接</h3>
+              <h3>参与方连接</h3>
             </div>
           </template>
           <div class="stat-content">
@@ -58,7 +58,7 @@
             <el-statistic :value="activeConnections">
               <template #title>
                 <div style="display: inline-flex; align-items: center">
-                  已连接数据库
+                  已连接参与方
                   <el-icon style="margin-left: 4px">
                     <Connection />
                   </el-icon>
@@ -124,7 +124,7 @@
         <el-card shadow="hover">
           <template #header>
             <div class="card-header">
-              <h3>数据库拓扑结构</h3>
+              <h3>联邦拓扑结构</h3>
             </div>
           </template>
           <div id="topologyChart" class="chart-container"></div>
@@ -244,7 +244,7 @@ const initTopologyChart = (connections: any[]) => {
     
     // 准备节点数据
     const nodes = [
-      { id: 'federation', name: '联邦协调方', value: '联邦', category: 0, symbolSize: 80, itemStyle: { color: '#5470C6' } }
+      { id: 'federation', name: '联邦管理端', value: '联邦', category: 0, symbolSize: 80, itemStyle: { color: '#5470C6' } }
     ]
     
     // 添加数据库节点
@@ -278,7 +278,7 @@ const initTopologyChart = (connections: any[]) => {
         formatter: '{b}'
       },
       legend: {
-        data: ['联邦协调方', '活跃连接参与方', '未连接参与方']
+        data: ['联邦管理端', '活跃连接参与方', '未连接参与方']
       },
       animationDurationUpdate: 1500,
       animationEasingUpdate: 'quinticInOut' as any,
@@ -289,7 +289,7 @@ const initTopologyChart = (connections: any[]) => {
           data: nodes,
           links: edges,
           categories: [
-            { name: '联邦协调方' },
+            { name: '联邦管理端' },
             { name: '活跃连接参与方' },
             { name: '未连接参与方' }
           ],

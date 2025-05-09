@@ -16,7 +16,7 @@
             label-position="top"
           >
             <!-- 数据库选择 -->
-            <el-form-item label="选择数据库" prop="database_ids">
+            <el-form-item label="选择参与方" prop="database_ids" fontsize>
               <div class="database-selection">
                 <el-checkbox
                   v-model="selectAllDatabases"
@@ -89,7 +89,7 @@
                   v-model="queryForm.vector_data_text"
                   type="textarea"
                   :rows="5"
-                  placeholder="输入向量数据，如 [0.1, 0.2, 0.3, ...]"
+                  placeholder="输入查询向量，如 [0.1, 0.2, 0.3, ...]"
                   @input="handleVectorDataInput"
                 />
               </el-form-item>
@@ -163,9 +163,9 @@
                 {{ formatTimestamp(row.timestamp) }}
               </template>
             </el-table-column>
-            <el-table-column prop="database_count" label="数据库数量" width="100" align="center"/>
+            <el-table-column prop="database_count" label="参与方数量" width="100" align="center"/>
             <el-table-column prop="top_k" label="Top K" width="80" align="center" />
-            <el-table-column label="数据库" min-width="180" align="center">
+            <el-table-column label="参与方" min-width="180" align="center">
               <template #default="{ row }">
                 <div class="database-list">
                   <el-tag

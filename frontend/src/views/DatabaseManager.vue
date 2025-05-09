@@ -2,7 +2,7 @@
   <div class="database-manager-container">
     <div class="header-actions">
       <el-button type="primary" @click="openCreateDialog">
-        <el-icon><Plus /></el-icon> 添加数据库连接
+        <el-icon><Plus /></el-icon> 添加联邦参与方
       </el-button>
       <el-button @click="refreshDatabases">
         <el-icon><Refresh /></el-icon> 刷新
@@ -12,7 +12,7 @@
     <el-card shadow="never" class="database-list">
       <template #header>
         <div class="card-header">
-          <h3>数据库连接列表</h3>
+          <h3>联邦参与方连接列表</h3>
         </div>
       </template>
       
