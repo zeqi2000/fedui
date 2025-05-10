@@ -303,7 +303,7 @@ const submitDatabaseForm = async () => {
       try {
         if (isEdit.value && currentEditId.value) {
           // 编辑现有数据库
-          const updateData = { ...databaseForm }
+          const updateData = { ...databaseForm } as any
           // 如果密码为空，不更新密码
           if (!updateData.password) {
             delete updateData.password
@@ -434,7 +434,60 @@ onMounted(() => {
   align-items: center;
 }
 
+.card-header h3 {
+  font-size: 24px;
+}
+
 .statistics-summary {
   margin-top: 30px;
+}
+
+:deep(.el-button) {
+  font-size: 18px;
+}
+
+:deep(.el-table) {
+  font-size: 18px;
+}
+
+:deep(.el-table th) {
+  font-size: 18px;
+}
+
+:deep(.el-tag) {
+  font-size: 16px;
+}
+
+:deep(.el-form-item__label) {
+  font-size: 18px;
+}
+
+:deep(.el-input__inner) {
+  font-size: 18px;
+}
+
+:deep(.el-dialog__title) {
+  font-size: 22px;
+}
+
+:deep(.el-descriptions__title) {
+  font-size: 20px;
+}
+
+:deep(.el-descriptions__label) {
+  font-size: 18px;
+}
+
+:deep(.el-descriptions__content) {
+  font-size: 18px;
+}
+
+:deep(.el-card__header) {
+  font-size: 20px;
+}
+
+:deep(.el-icon) {
+  width: 1.2em;
+  height: 1.2em;
 }
 </style> 

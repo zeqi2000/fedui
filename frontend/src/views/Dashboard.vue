@@ -28,8 +28,8 @@
             <el-statistic :value="databaseCount">
               <template #title>
                 <div style="display: inline-flex; align-items: center">
-                  总连接数
-                  <el-icon style="margin-left: 4px">
+                  <span style="font-weight: bold; color: #409EFF;font-size: 20px;">总连接数</span>
+                  <el-icon style="margin-left: 6px; color: #409EFF;">
                     <Monitor />
                   </el-icon>
                 </div>
@@ -58,8 +58,8 @@
             <el-statistic :value="activeConnections">
               <template #title>
                 <div style="display: inline-flex; align-items: center">
-                  已连接参与方
-                  <el-icon style="margin-left: 4px">
+                  <span style="font-weight: bold; color: #67C23A;font-size: 20px;">已连接参与方</span>
+                  <el-icon style="margin-left: 6px; color: #67C23A;">
                     <Connection />
                   </el-icon>
                 </div>
@@ -88,8 +88,8 @@
             <el-statistic :value="recentQueryCount">
               <template #title>
                 <div style="display: inline-flex; align-items: center">
-                  最近查询次数
-                  <el-icon style="margin-left: 4px">
+                  <span style="font-weight: bold; color: #E6A23C;font-size: 20px;">最近查询次数</span>
+                  <el-icon style="margin-left: 6px; color: #E6A23C;">
                     <Search />
                   </el-icon>
                 </div>
@@ -184,17 +184,23 @@ const initSystemStatusChart = (connections: any[]) => {
     // 准备数据
     const statusData = [
       { value: activeConnections.value, name: '活跃连接', itemStyle: { color: '#91CC75' } },
-      { value: databaseCount.value - activeConnections.value, name: '未连接', itemStyle: { color: '#FAC858' } }
+      { value: databaseCount.value - activeConnections.value, name: '未连接', itemStyle: {  color: '#FAC858' } }
     ]
     
     const option = {
       tooltip: {
         trigger: 'item',
-        formatter: '{a} <br/>{b}: {c} ({d}%)'
+        formatter: '{a} <br/>{b}: {c} ({d}%)',
+        textStyle: {
+          fontSize: 16
+        }
       },
       legend: {
         top: '5%',
-        left: 'center'
+        left: 'center',
+        textStyle: {
+          fontSize: 20
+        }
       },
       series: [
         {
@@ -209,7 +215,8 @@ const initSystemStatusChart = (connections: any[]) => {
           },
           label: {
             show: false,
-            position: 'center'
+            position: 'center',
+            fontSize: 16
           },
           emphasis: {
             label: {
@@ -275,10 +282,16 @@ const initTopologyChart = (connections: any[]) => {
     const option = {
       tooltip: {
         trigger: 'item',
-        formatter: '{b}'
+        formatter: '{b}',
+        textStyle: {
+          fontSize: 16
+        }
       },
       legend: {
-        data: ['联邦管理端', '活跃连接参与方', '未连接参与方']
+        data: ['联邦管理端', '活跃连接参与方', '未连接参与方'],
+        textStyle: {
+          fontSize: 20
+        }
       },
       animationDurationUpdate: 1500,
       animationEasingUpdate: 'quinticInOut' as any,
@@ -297,7 +310,8 @@ const initTopologyChart = (connections: any[]) => {
           label: {
             show: true,
             position: 'right',
-            formatter: '{b}'
+            formatter: '{b}',
+            fontSize: 16
           },
           force: {
             repulsion: 100,
@@ -342,7 +356,7 @@ onMounted(() => {
 
 .welcome-content {
   padding: 10px 0;
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1.6;
 }
 
@@ -356,6 +370,10 @@ onMounted(() => {
   align-items: center;
 }
 
+.card-header h3 {
+  font-size: 24px;
+}
+
 .stat-card {
   height: 100%;
 }
@@ -365,6 +383,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 200px;
+  font-size: 18px;
 }
 
 .stat-footer {
@@ -377,15 +396,43 @@ onMounted(() => {
 .connection-tag {
   margin-right: 5px;
   margin-bottom: 5px;
+  font-size: 16px;
 }
 
 .empty-text {
   color: #909399;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .chart-container {
   height: 400px;
   width: 100%;
+}
+
+:deep(.el-button) {
+  font-size: 18px;
+}
+
+:deep(.el-statistic__number) {
+  font-size: 36px !important;
+  font-weight: bold;
+}
+
+:deep(.el-statistic__title) {
+  font-size: 22px !important;
+  font-weight: 600;
+}
+
+:deep(.el-tag) {
+  font-size: 16px;
+}
+
+:deep(.el-card__header) {
+  font-size: 20px;
+}
+
+:deep(.el-icon) {
+  width: 1.2em;
+  height: 1.2em;
 }
 </style> 

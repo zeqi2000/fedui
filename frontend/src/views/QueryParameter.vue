@@ -1,7 +1,7 @@
 <template>
   <div class="query-parameter-container">
     <el-row :gutter="20">
-      <el-col :span="12">
+      <el-col :span="10">
         <el-card shadow="never" class="parameter-panel">
           <template #header>
             <div class="card-header">
@@ -142,7 +142,7 @@
         </el-card>
       </el-col>
       
-      <el-col :span="12">
+      <el-col :span="14">
         <el-card shadow="never" class="history-panel">
           <template #header>
             <div class="card-header">
@@ -567,6 +567,10 @@ onMounted(() => {
   align-items: center;
 }
 
+.card-header h3 {
+  font-size: 24px;
+}
+
 .parameter-panel,
 .history-panel {
   height: 100%;
@@ -574,6 +578,7 @@ onMounted(() => {
 
 .database-selection {
   margin-bottom: 10px;
+  font-size: 18px;
 }
 
 .database-item {
@@ -581,6 +586,7 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 10px;
   justify-content: space-between;
+  font-size: 18px;
 }
 
 .db-status {
@@ -602,7 +608,7 @@ onMounted(() => {
 
 .collection-name {
   color: #666;
-  font-size: 0.9em;
+  font-size: 1.1em;
 }
 
 pre {
@@ -613,6 +619,7 @@ pre {
   border-radius: 4px;
   max-height: 200px;
   overflow-y: auto;
+  font-size: 18px;
 }
 
 .database-list {
@@ -624,5 +631,72 @@ pre {
 .database-tag {
   margin-right: 5px;
   margin-bottom: 5px;
+  font-size: 18px;
+}
+
+:deep(.el-checkbox__label) {
+  font-size: 20px;
+}
+
+:deep(.el-radio__label) {
+  font-size: 20px;
+}
+
+:deep(.el-form-item__label) {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+:deep(.el-button) {
+  font-size: 20px;
+}
+
+:deep(.el-table) {
+  font-size: 20px;
+}
+
+:deep(.el-table th) {
+  font-size: 20px;
+}
+
+:deep(.el-tag) {
+  font-size: 18px;
+}
+
+:deep(.el-textarea__inner) {
+  font-size: 18px;
+}
+
+:deep(.el-input__inner) {
+  font-size: 18px;
+}
+
+:deep(.el-dialog__title) {
+  font-size: 22px;
+}
+
+:deep(.el-descriptions__label) {
+  font-size: 18px;
+}
+
+:deep(.el-descriptions__content) {
+  font-size: 18px;
+}
+
+:deep(.el-upload__text) {
+  font-size: 18px;
+}
+
+:deep(.el-upload__tip) {
+  font-size: 18px;
+}
+
+:deep(.el-card__header) {
+  font-size: 20px;
+}
+
+:deep(.el-icon) {
+  width: 1.2em;
+  height: 1.2em;
 }
 </style> 
