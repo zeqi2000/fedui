@@ -66,11 +66,15 @@
           
           <el-table-column label="向量" min-width="300">
             <template #default="{ row }">
-              <el-tooltip :content="JSON.stringify(getVectorData(row))" placement="top" effect="light">
-                <span class="vector-preview">
-                  {{ formatVector(getVectorData(row)) }}
+              <div class="table-vector-container" @click="toggleTableVectorExpand(row)">
+                <span class="vector-toggle-button">{{ tableExpandedRows[row.id] ? '收起' : '展开' }}</span>
+                <span v-if="!tableExpandedRows[row.id]">
+                  {{ formatVector(getVectorData(row), false) }}
                 </span>
-              </el-tooltip>
+                <span v-else class="full-vector-preview">
+                  {{ formatVector(getVectorData(row), true) }}
+                </span>
+              </div>
             </template>
           </el-table-column>
           
@@ -119,14 +123,30 @@
             {{ selectedResult.distance.toFixed(6) }}
           </el-descriptions-item>
           
-          <template v-for="(value, fieldName) in selectedResult" :key="fieldName">
+          <div v-for="(fieldName, index) in Object.keys(selectedResult)" :key="index">
             <el-descriptions-item
               v-if="!['database_id', 'collection_name', 'id', 'distance'].includes(fieldName)"
               :label="fieldName"
             >
-              {{ typeof value === 'object' ? JSON.stringify(value) : value }}
+              <template v-if="isVectorField(fieldName, selectedResult[fieldName])">
+                <div class="vector-container">
+                  <div class="vector-preview-container" @click="toggleVectorExpand(fieldName)">
+                    <span class="vector-toggle-button">{{ expandedFields[fieldName] ? '收起' : '展开' }}</span>
+                    <span v-if="!expandedFields[fieldName]">
+                      [{{ selectedResult[fieldName].slice(0, 5).map((v: number) => typeof v === 'number' ? v.toFixed(4) : v).join(', ') }}...]
+                      <span class="vector-length">(长度: {{ selectedResult[fieldName].length }})</span>
+                    </span>
+                    <div v-else class="full-vector">
+                      [{{ selectedResult[fieldName].map((v: number) => typeof v === 'number' ? v.toFixed(4) : v).join(', ') }}]
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                {{ typeof selectedResult[fieldName] === 'object' ? JSON.stringify(selectedResult[fieldName]) : selectedResult[fieldName] }}
+              </template>
             </el-descriptions-item>
-          </template>
+          </div>
         </el-descriptions>
       </div>
     </el-dialog>
@@ -152,9 +172,13 @@ const additionalFields = ref<string[]>([])
 // 结果详情
 const detailsVisible = ref(false)
 const selectedResult = ref<any>(null)
+const expandedFields = ref<Record<string, boolean>>({})  // 记录每个字段的展开状态
 
 // 数据库信息
 const availableDatabases = ref<any[]>([])
+
+// 表格向量展开状态
+const tableExpandedRows = ref<Record<string, boolean>>({})
 
 // 获取数据库名称
 const getDatabaseName = (id: string) => {
@@ -167,10 +191,41 @@ const formatDatabaseId = (id: string) => {
   return id ? id.substring(0, 8) + '...' : ''
 }
 
+// 判断字段是否为向量字段
+const isVectorField = (fieldName: string, value: any): boolean => {
+  // 检查字段名是否为已知的向量字段名
+  const knownVectorFields = ['emb', 'vector', 'embedding', 'vec']
+  
+  // 判断值是否为数值数组（向量）
+  const isVectorValue = Array.isArray(value) && 
+                        value.length > 0 && 
+                        value.every((v: any) => typeof v === 'number')
+  
+  return isVectorValue && (knownVectorFields.includes(fieldName) || value.length > 10)
+}
+
+// 切换向量展开状态
+const toggleVectorExpand = (fieldName: string) => {
+  expandedFields.value = {
+    ...expandedFields.value,
+    [fieldName]: !expandedFields.value[fieldName]
+  }
+}
+
+// 切换表格向量展开状态
+const toggleTableVectorExpand = (row: any) => {
+  const rowId = row.id
+  tableExpandedRows.value = {
+    ...tableExpandedRows.value,
+    [rowId]: !tableExpandedRows.value[rowId]
+  }
+}
+
 // 显示结果详情
 const showResultDetails = (row: any) => {
   selectedResult.value = row
   detailsVisible.value = true
+  expandedFields.value = {}  // 重置所有字段的展开状态
 }
 
 // 返回上一页
@@ -205,7 +260,10 @@ const exportResults = () => {
 
 // 获取向量数据的函数
 const getVectorData = (row: any) => {
-  // 首先检查是否有直接的向量字段
+  // 首先检查emb字段，因为这是后端查询中使用的字段
+  if (row.emb) return row.emb
+  
+  // 然后检查其他可能的向量字段
   if (row.vector) return row.vector
   if (row.embedding) return row.embedding
   if (row.vec) return row.vec
@@ -238,16 +296,12 @@ const getVectorData = (row: any) => {
     }
   }
   
-  // 如果还是没有找到，尝试从查询参数中获取原始向量
-  if (queryResult.value?.query_params?.vector_data) {
-    return queryResult.value.query_params.vector_data
-  }
-  
+  // 如果没有找到向量，返回空数组
   return []
 }
 
 // 修改格式化向量的函数
-const formatVector = (vector: number[]) => {
+const formatVector = (vector: number[], expanded: boolean = false) => {
   if (!vector || !Array.isArray(vector)) return '无向量数据'
   if (vector.length === 0) return '空向量'
   
@@ -260,7 +314,13 @@ const formatVector = (vector: number[]) => {
     return v.toFixed(4)
   })
   
-  return `[${formatted.slice(0, 3).join(', ')}${vector.length > 3 ? ', ...' : ''}]`
+  if (expanded) {
+    // 展开状态：显示全部元素
+    return `[${formatted.join(', ')}]`
+  } else {
+    // 折叠状态：只显示前几个元素
+    return `[${formatted.slice(0, 3).join(', ')}${vector.length > 3 ? ', ...' : ''}] (长度: ${vector.length})`
+  }
 }
 
 // 修改加载查询结果的函数
@@ -279,7 +339,7 @@ const loadQueryResult = async () => {
         // 提取额外字段，排除向量相关字段
         if (queryResults.value.length > 0) {
           additionalFields.value = Object.keys(queryResults.value[0])
-            .filter(key => !['database_id', 'collection_name', 'id', 'distance', 'vector', 'embedding', 'vec'].includes(key))
+            .filter(key => !['database_id', 'collection_name', 'id', 'distance', 'vector', 'embedding', 'vec', 'emb'].includes(key))
         }
         
         // 打印查询结果，用于调试
@@ -304,7 +364,7 @@ const loadQueryResult = async () => {
             // 提取额外字段，排除向量相关字段
             if (queryResults.value.length > 0) {
               additionalFields.value = Object.keys(queryResults.value[0])
-                .filter(key => !['database_id', 'collection_name', 'id', 'distance', 'vector', 'embedding', 'vec'].includes(key))
+                .filter(key => !['database_id', 'collection_name', 'id', 'distance', 'vector', 'embedding', 'vec', 'emb'].includes(key))
             }
             
             // 打印查询结果，用于调试
@@ -395,5 +455,68 @@ onMounted(async () => {
   font-family: monospace;
   color: #666;
   cursor: pointer;
+}
+
+.vector-length {
+  color: #909399;
+  font-size: 0.9em;
+  margin-left: 5px;
+}
+
+.vector-container {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.vector-preview-container {
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.vector-preview-container:hover {
+  background-color: #f5f7fa;
+}
+
+.vector-toggle-button {
+  color: #409EFF;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.full-vector {
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin-top: 5px;
+  padding: 8px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
+
+.table-vector-container {
+  cursor: pointer;
+  padding: 2px 0;
+  transition: background-color 0.3s;
+  font-family: monospace;
+}
+
+.table-vector-container:hover {
+  background-color: #f5f7fa;
+}
+
+.full-vector-preview {
+  display: block;
+  max-height: 100px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  background-color: #f5f7fa;
+  padding: 4px;
+  border-radius: 4px;
+  margin-top: 4px;
 }
 </style> 

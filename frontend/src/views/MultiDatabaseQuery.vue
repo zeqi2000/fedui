@@ -254,14 +254,14 @@
             {{ selectedResult.distance.toFixed(6) }}
           </el-descriptions-item>
           
-          <el-descriptions-item
-            v-for="(value, key) in selectedResult"
-            :key="key"
-            :label="key"
-            v-if="!['database_id', 'collection_name', 'id', 'distance'].includes(key)"
-          >
-            {{ typeof value === 'object' ? JSON.stringify(value) : value }}
-          </el-descriptions-item>
+          <div v-for="(fieldName, index) in Object.keys(selectedResult)" :key="index">
+            <el-descriptions-item
+              v-if="!['database_id', 'collection_name', 'id', 'distance'].includes(fieldName)"
+              :label="fieldName"
+            >
+              {{ typeof selectedResult[fieldName] === 'object' ? JSON.stringify(selectedResult[fieldName]) : selectedResult[fieldName] }}
+            </el-descriptions-item>
+          </div>
         </el-descriptions>
       </div>
     </el-dialog>
@@ -509,7 +509,7 @@ const executeQuery = async () => {
           vector_data: queryForm.vector_data,
           top_k: queryForm.top_k,
           return_vectors: true,
-          include_metadata: true
+          output_fields: ["id", "emb"]
         }
         
         // 执行跨库查询

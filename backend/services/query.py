@@ -1,8 +1,26 @@
 import time
+import numpy as np
 from typing import List, Dict, Any, Optional, Union
 from pymilvus import Collection, utility, connections
 from services.database import get_connection_by_id, connect_to_db
 from schemas.query import QueryResult, MultiDatabaseQueryResult
+
+def convert_numpy_types(obj):
+    """递归转换NumPy类型为Python原生类型"""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, dict):
+        return {k: convert_numpy_types(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    elif isinstance(obj, tuple):
+        return tuple(convert_numpy_types(item) for item in obj)
+    else:
+        return obj
 
 def execute_vector_query(
     database_id: str,
@@ -57,12 +75,14 @@ def execute_vector_query(
                 if output_fields:
                     for field in output_fields:
                         if hasattr(hit, "entity"):
-                            hit_data[field] = hit.entity.get(field)
+                            # 转换NumPy类型为Python原生类型
+                            value = hit.entity.get(field)
+                            hit_data[field] = convert_numpy_types(value)
                 results.append(hit_data)
         
         end_time = time.time()
         execution_time = end_time - start_time
-        print("result:",results)
+        print("result:", results)
         # 返回结果
         return QueryResult(
             database_id=database_id,
@@ -87,7 +107,7 @@ def execute_multi_db_query(
 ) -> MultiDatabaseQueryResult:
     """在多个数据库上执行查询并合并结果"""
     print("service")
-    print("multi:",database_ids,collection_names,vector_data)
+    print("multi:", database_ids, collection_names, vector_data)
 
     start_time = time.time()
     results = {}
@@ -112,7 +132,7 @@ def execute_multi_db_query(
                 output_fields=output_fields
             )
             print(2)
-            # print("multi:",db_id,query_result)
+            # print("multi:", db_id, query_result)
             results[db_id] = query_result
             print(3)
         except Exception as e:
@@ -122,11 +142,13 @@ def execute_multi_db_query(
     all_results = []
     for db_id, result in results.items():
         for item in result.results:
-            all_results.append({
+            # 确保所有数据都被转换为JSON可序列化的类型
+            processed_item = convert_numpy_types({
                 "database_id": db_id,
                 "collection_name": result.collection_name,
                 **item
             })
+            all_results.append(processed_item)
     
     # 根据距离排序
     all_results.sort(key=lambda x: x["distance"])

@@ -457,7 +457,9 @@ const submitQuery = async () => {
           collection_names: queryForm.collection_mapping,
           vector_data: queryForm.vector_data,
           top_k: queryForm.top_k,
-          query_type: queryForm.query_type
+          query_type: queryForm.query_type,
+          return_vectors: true,
+          output_fields: ["id", "emb"]
         }
         
         const result = await executeMultiDatabaseQuery(queryParams)

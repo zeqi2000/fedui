@@ -23,28 +23,28 @@
         
         <el-menu-item index="/databases" v-if="userStore.isAdmin">
           <el-icon><Connection /></el-icon>
-          <template #title>数据库管理</template>
+          <template #title>联邦参与方管理</template>
         </el-menu-item>
         
-        <el-menu-item index="/query">
+        <!-- <el-menu-item index="/query">
           <el-icon><Search /></el-icon>
           <template #title>向量查询</template>
-        </el-menu-item>
+        </el-menu-item> -->
         
         <el-menu-item index="/query-parameter">
           <el-icon><Document /></el-icon>
           <template #title>查询参数</template>
         </el-menu-item>
         
-        <el-menu-item index="/multi-query">
+        <!-- <el-menu-item index="/multi-query">
           <el-icon><Connection /></el-icon>
           <span>横向联邦查询</span>
-        </el-menu-item>
+        </el-menu-item> -->
 
-        <el-menu-item index="/multi-query-v">
+        <!-- <el-menu-item index="/multi-query-v">
           <el-icon><Connection /></el-icon>
           <span>纵向联邦查询</span>
-        </el-menu-item>
+        </el-menu-item> -->
         
         <el-menu-item index="/profile">
           <el-icon><User /></el-icon>
