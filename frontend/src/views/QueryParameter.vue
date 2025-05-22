@@ -1,7 +1,7 @@
 <template>
   <div class="query-parameter-container">
     <el-row :gutter="20">
-      <el-col :span="10">
+      <el-col :span="12">
         <el-card shadow="never" class="parameter-panel">
           <template #header>
             <div class="card-header">
@@ -142,7 +142,7 @@
         </el-card>
       </el-col>
       
-      <el-col :span="14">
+      <el-col :span="12">
         <el-card shadow="never" class="history-panel">
           <template #header>
             <div class="card-header">
